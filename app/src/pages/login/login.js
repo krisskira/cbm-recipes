@@ -1,22 +1,53 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
+
 import {
-  Platform, Text,
+  Platform,
+  Text,
   TextInput,
   SafeAreaView,
   StatusBar,
-  TouchableNativeFeedback, View
+  TouchableNativeFeedback,
+  View,
 } from 'react-native';
-import { Routes } from '../../const/routes';
-import { styles } from './styles';
+import {gql, useLazyQuery} from '@apollo/client';
+
+import {Routes} from '../../const/routes';
+import {styles} from './styles';
 import {Colors} from '../../const/colors';
 
 const LoginPage = ({navigation}) => {
+  const LOGIN_QUERY = gql`
+    query Login($username: String!, $password: String!) {
+      login(username: $username, password: $password)
+    }
+  `;
+  const [doLogin, {loading, data, error}] = useLazyQuery(LOGIN_QUERY);
+
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
+  const [token, setToken] = useState();
 
   const _handleOnClickLogin = () => {
-    navigation.navigate(Routes.recipes);
+    if(!!!username || !!!password){
+      setToken();
+      return
+    }
+    doLogin({
+      variables: {
+        username,
+        password,
+      },
+    });
   };
+
+  useEffect(() => {
+    if (!!data) {
+      setToken(data.login);
+      setUsername();
+      setPassword();
+      navigation.navigate(Routes.recipes);
+    }
+  }, [data]);
 
   return (
     <>
@@ -29,28 +60,38 @@ const LoginPage = ({navigation}) => {
       <View style={styles.container}>
         <View style={styles.formContainer}>
           <Text style={styles.title}>Bienvenid@</Text>
-          <TextInput
-            style={styles.inputText}
-            placeholder="Usuario"
-            onChangeText={username => setUsername(username)}
-          />
-          <TextInput
-            style={styles.inputText}
-            placeholder="Contraseña"
-            secureTextEntry={true}
-            onChangeText={password => setPassword(password)}
-          />
-          <TouchableNativeFeedback
-            onPress={_handleOnClickLogin}
-            background={
-              Platform.OS === 'android'
-                ? TouchableNativeFeedback.SelectableBackground()
-                : ''
-            }>
-            <View style={styles.button}>
-              <Text style={styles.buttonTitle}>Iniciar Sesión</Text>
-            </View>
-          </TouchableNativeFeedback>
+          {loading && <Text>Cargando...</Text>}
+          {error && (
+            <Text style={{color: Colors.borderDefault}}>
+              El usuario no fue encontrado
+            </Text>
+          )}
+          {!loading && (
+            <>
+              <TextInput
+                style={styles.inputText}
+                placeholder="Usuario"
+                onChangeText={usernameText => setUsername(usernameText)}
+              />
+              <TextInput
+                style={styles.inputText}
+                placeholder="Contraseña"
+                secureTextEntry={true}
+                onChangeText={passwordText => setPassword(passwordText)}
+              />
+              <TouchableNativeFeedback
+                onPress={_handleOnClickLogin}
+                background={
+                  Platform.OS === 'android'
+                    ? TouchableNativeFeedback.SelectableBackground()
+                    : ''
+                }>
+                <View style={styles.button}>
+                  <Text style={styles.buttonTitle}>Iniciar Sesión</Text>
+                </View>
+              </TouchableNativeFeedback>
+            </>
+          )}
         </View>
       </View>
     </>
