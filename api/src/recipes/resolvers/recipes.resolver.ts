@@ -8,6 +8,6 @@ export class RecipesResolver {
 
     @Query(returns => [RecipeModel])
     async recipes() {
-        return this.recipesService.load();
+        return await this.recipesService.load();
     }
 }

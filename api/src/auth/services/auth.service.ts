@@ -16,6 +16,7 @@ export class AuthService {
       throw 'user no found';
     }
     const user = await this.userModel.findOne({username}).exec();
+    if(!!!user) throw 'user not found';
     if(user.password !== password) throw 'user not found';
     const payload = {
       username,
