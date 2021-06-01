@@ -1,17 +1,14 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
+  Platform, Text,
+  TextInput,
   SafeAreaView,
   StatusBar,
-  View,
-  Text,
-  TextInput,
-  Touchable,
-  TouchableNativeFeedback,
-  Platform,
+  TouchableNativeFeedback, View
 } from 'react-native';
+import { Routes } from '../../const/routes';
+import { styles } from './styles';
 import {Colors} from '../../const/colors';
-import {Routes} from '../../const/routes';
-import {styles} from './styles';
 
 const LoginPage = ({navigation}) => {
   const [username, setUsername] = useState();

@@ -1,0 +1,1 @@
+export const GRAPH_API = 'http://192.168.18.22:3000/graphql';

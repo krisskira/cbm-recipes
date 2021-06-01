@@ -10,28 +10,24 @@ import {
 } from 'react-native';
 import {Colors} from '../../const/colors';
 import {styles} from './styles';
+import {gql, useQuery} from '@apollo/client';
 
 const RecipesPage = ({}) => {
-  const data = [
-    {
-      name: 'Hamburgesa',
-      ingredients: ['Pan', 'Lechuga', 'Tomate'],
-      image: 'https://10619-2.s.cdn12.com/r0/h215/Retro-Santana-burger.jpg',
-      key: 'item1',
-    },
-    {
-      name: 'Ensaladas',
-      ingredients: ['Lechuga', 'Pollo', 'Tomate', 'Espinaca'],
-      image: 'https://10619-2.s.cdn12.com/rests/small/h215/108_502126092.jpg',
-      key: 'item2',
-    },
-    {
-      name: 'Carne asada',
-      ingredients: ['Carne de res', 'Yuca', 'Lechuga'],
-      image: 'https://10619-2.s.cdn12.com/rests/small/h215/327_508967016.jpg',
-      key: 'item3',
-    },
-  ];
+
+  const CHAPTERS_QUERY = gql`
+    query Recipes {
+      recipes {
+        name
+        image
+        ingredients
+      }
+    }
+  `;
+  const {data, loading} = useQuery(CHAPTERS_QUERY);
+
+  if (loading) {
+    return <Text>Cargando...</Text>;
+  }
 
   return (
     <>
@@ -43,9 +39,9 @@ const RecipesPage = ({}) => {
       </SafeAreaView>
       <FlatList
         style={styles.container}
-        data={data}
+        data={data.recipes.map((recipe, index) => ({...recipe, key: index}))}
         renderItem={({item, index, separators}) => (
-          <View style={styles.card}>
+          <View key={item.key} style={styles.card}>
             <Image source={{uri: item.image}} style={styles.cardImage} />
             <View style={styles.cardTextContent}>
               <Text style={styles.cardTitle}>{item.name}</Text>
